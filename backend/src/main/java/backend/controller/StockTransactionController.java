@@ -15,6 +15,7 @@ public class StockTransactionController {
 
     public StockTransactionController(
             StockTransactionService stockTransactionService) {
+
         this.stockTransactionService = stockTransactionService;
     }
 
@@ -44,5 +45,13 @@ public class StockTransactionController {
             return ResponseEntity.badRequest()
                     .body(e.getMessage());
         }
+    }
+
+    @GetMapping("/history")
+    public ResponseEntity<?> getTransactionHistory() {
+
+        return ResponseEntity.ok(
+                stockTransactionService.getAllTransactions()
+        );
     }
 }

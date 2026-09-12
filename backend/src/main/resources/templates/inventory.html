@@ -111,6 +111,27 @@
 </form>
 
 <div id="stockAlert"></div>
+
+<hr>
+
+<h2>Stock Transaction History</h2>
+
+<table border="1">
+    <thead>
+    <tr>
+        <th>Transaction ID</th>
+        <th>Material ID</th>
+        <th>Transaction Type</th>
+        <th>Quantity</th>
+        <th>Batch Number</th>
+        <th>Storage Location</th>
+    </tr>
+    </thead>
+
+    <tbody id="transactionTableBody">
+    </tbody>
+</table>
+
 <script>
 
     function loadMaterials() {
@@ -197,6 +218,7 @@
         });
 
     loadMaterials();
+    loadTransactionHistory();
     function updateMaterial(id) {
 
         const name = prompt("Enter Material Name:");
@@ -381,6 +403,35 @@
 
                     alertBox.innerHTML = '';
                 }
+            });
+    }
+
+    function loadTransactionHistory() {
+
+        fetch('/api/stock-transactions/history')
+            .then(response => response.json())
+            .then(transactions => {
+
+                const tableBody =
+                    document.getElementById('transactionTableBody');
+
+                tableBody.innerHTML = '';
+
+                transactions.forEach(transaction => {
+
+                    const row = `
+                    <tr>
+                        <td>${transaction.transactionId}</td>
+                        <td>${transaction.material.materialId}</td>
+                        <td>${transaction.transactionType}</td>
+                        <td>${transaction.quantity}</td>
+                        <td>${transaction.batchNumber}</td>
+                        <td>${transaction.storageLocation}</td>
+                    </tr>
+                `;
+
+                    tableBody.innerHTML += row;
+                });
             });
     }
 </script>

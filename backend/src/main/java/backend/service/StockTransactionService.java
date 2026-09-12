@@ -1,5 +1,6 @@
 package backend.service;
 
+import java.util.List;
 import backend.model.Material;
 import backend.model.StockTransaction;
 import backend.model.TransactionType;
@@ -72,5 +73,9 @@ public class StockTransactionService {
         transaction.setStorageLocation(storageLocation);
 
         return stockTransactionRepository.save(transaction);
+    }
+
+    public List<StockTransaction> getAllTransactions() {
+        return stockTransactionRepository.findAllByOrderByTransactionIdDesc();
     }
 }
