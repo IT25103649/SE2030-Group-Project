@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garment Quality Assurance Management</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom External CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-light p-4">
+<div class="container">
+    <h2 class="mb-4 text-center portal-header fw-bold text-dark">Quality Assurance - Inspection Portal</h2>
+
+    <!-- Key Metrics / Summary Cards Section -->
+    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-5 g-3 mb-4">
+        <div class="col">
+            <div class="card p-3 border-start border-primary border-4 shadow-sm h-100">
+                <div class="text-secondary small fw-bold">TOTAL INSPECTIONS</div>
+                <div class="fs-3 fw-bold text-dark" id="statTotal">0</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card p-3 border-start border-success border-4 shadow-sm h-100">
+                <div class="text-secondary small fw-bold">PASSED BATCHES</div>
+                <div class="fs-3 fw-bold text-success" id="statPass">0</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card p-3 border-start border-danger border-4 shadow-sm h-100">
+                <div class="text-secondary small fw-bold">FAILED BATCHES</div>
+                <div class="fs-3 fw-bold text-danger" id="statFail">0</div>
+            </div>
+        </div>
+        <div class="col">
+            <div class="card p-3 border-start border-warning border-4 shadow-sm h-100">
+                <div class="text-secondary small fw-bold">REWORK PENDING</div>
+                <div class="fs-3 fw-bold text-warning" id="statRework">0</div>
+            </div>
+        </div>
+
+        <!-- Split Card for Defect Qty vs Total Qty -->
+        <div class="col">
+            <div class="card p-3 border-start border-info border-4 shadow-sm h-100 d-flex flex-column justify-content-between">
+                <div>
+                    <div class="text-secondary small fw-bold">DEFECT QTY (FAIL+REWORK)</div>
+                    <div class="fs-4 fw-bold text-danger" id="statDefectQty">0</div>
+                </div>
+
+                <hr class="my-2 border-secondary opacity-25">
+
+                <div>
+                    <div class="text-secondary small fw-bold" style="font-size: 0.72rem;">TOTAL BATCH QTY (ALL)</div>
+                    <div class="fs-5 fw-bold text-info" id="statTotalQty">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Inspection Form Section -->
+    <div class="card mb-4 shadow-sm border-0">
+        <div class="card-header bg-primary text-white fw-bold">Log Quality Inspection</div>
+        <div class="card-body p-4">
+            <form id="inspectionForm">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="batchId" class="form-label fw-semibold">Batch ID</label>
+                        <input type="text" id="batchId" class="form-control" placeholder="Example: BATCH-001" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="inspectorName" class="form-label fw-semibold">Inspector Name</label>
+                        <input type="text" id="inspectorName" class="form-control" placeholder="Example: Kamal" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="resultStatus" class="form-label fw-semibold">Status</label>
+                        <select id="resultStatus" class="form-select" required onchange="checkReworkNotice(this.value)">
+                            <option value="PASS">PASS</option>
+                            <option value="FAIL">FAIL</option>
+                            <option value="REWORK">REWORK</option>
+                        </select>
+                        <div id="managerNotice" class="text-danger small mt-1 fw-bold" style="display: none;">
+                            ⚠️ Planning Manager will be notified for Rework.
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="defectType" class="form-label fw-semibold">Defect Type</label>
+                        <select id="defectType" class="form-select" required>
+                            <option value="" selected disabled>Select Defect Type</option>
+                            <option value="None / No Defect">None / No Defect</option>
+                            <option value="Stitching Issue">Stitching Issue</option>
+                            <option value="Fabric Tear">Fabric Tear</option>
+                            <option value="Color Shading">Color Shading</option>
+                            <option value="Size Mismatch">Size Mismatch</option>
+                            <option value="Button/Zipper Fault">Button/Zipper Fault</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="severity" class="form-label fw-semibold">Severity</label>
+                        <select id="severity" class="form-select" required>
+                            <option value="LOW">LOW</option>
+                            <option value="MEDIUM">MEDIUM</option>
+                            <option value="HIGH">HIGH</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="defectiveQuantity" class="form-label fw-semibold">Defective Quantity</label>
+                        <input type="number" id="defectiveQuantity" class="form-control" placeholder="Enter quantity" min="0" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label for="photoFile" class="form-label fw-semibold">Defect Photo (Optional)</label>
+                        <input type="file" id="photoFile" class="form-control" accept="image/*">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="remarks" class="form-label fw-semibold">Remarks</label>
+                        <input type="text" id="remarks" class="form-control" placeholder="Inspection details" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success mt-4 px-4 fw-bold">Submit Inspection</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Data Display Table Section -->
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="fw-bold">Inspection Log History</span>
+            <div class="d-flex gap-2 align-items-center flex-wrap">
+                <button class="btn btn-sm btn-outline-light" onclick="exportToCSV()">📊 Export CSV</button>
+                <button class="btn btn-sm btn-outline-light" onclick="exportToPDF()">📄 Export PDF</button>
+
+                <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search Batch ID..." onkeyup="filterInspections()" style="width: 150px;">
+                <select id="filterStatus" class="form-select form-select-sm" onchange="filterInspections()" style="width: 120px;">
+                    <option value="ALL">All Status</option>
+                    <option value="PASS">PASS</option>
+                    <option value="FAIL">FAIL</option>
+                    <option value="REWORK">REWORK</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0" id="inspectionTable">
+                    <thead class="table-dark sticky-top">
+                    <tr>
+                        <th>Batch ID</th>
+                        <th>Inspector</th>
+                        <th>Status</th>
+                        <th>Defect</th>
+                        <th>Photo</th>
+                        <th>Severity</th>
+                        <th>Qty</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="inspectionTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Preview Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title fw-bold">Defect Photo Preview</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-3">
+                <img id="modalImage" src="" class="img-fluid rounded shadow-sm" alt="Defect Preview">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Bootstrap 5 JS Bundle -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Libraries for PDF Export -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+<!-- Custom JS Script -->
+<script src="script.js"></script>
+</body>
+</html>
